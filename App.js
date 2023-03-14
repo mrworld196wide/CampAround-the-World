@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+// adding ejs mate
+const ejsMate = require('ejs-mate');
 const methodOverride= require("method-override");
 const Campground = require('./models/campground');
 
@@ -17,14 +19,16 @@ db.once("open", () => {
 
 const app = express();
 
+// adding ejs-mate
+app.engine('ejs', ejsMate);
+// adding  ejs
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 // used to parse ejs body in post method
 app.use(express.urlencoded({ extended: true }));
 // methodOverride
 app.use(methodOverride('_method'));
-
-// adding  ejs
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
 
 // home.ejs
 app.get('/', (req, res) => {
