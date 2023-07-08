@@ -3,6 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 // adding ejs mate
 const ejsMate = require('ejs-mate');
+//methodOverride middleware allows us to use HTTP verbs such as PUT or DELETE in HTML forms
 const methodOverride= require("method-override");
 const Campground = require('./models/campground');
 
@@ -26,8 +27,12 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // used to parse ejs body in post method
+// The urlencoded method tells to extract data 
+// from the <form> element 
+// and add them to the body property in the request object.
 app.use(express.urlencoded({ extended: true }));
-// methodOverride
+// The _method parameter specifies the query parameter or form field name that 
+// will be used to override the HTTP method. like DELELTE and PUT
 app.use(methodOverride('_method'));
 
 // home.ejs
@@ -70,8 +75,8 @@ app.put('/campgrounds/:id', async (req, res) => {
 })
 
 // Deleting a campground
-app.delete('/campground/:id', async(req,res) =>{
-    const {id} = req.params;
+app.delete('/campgrounds/:id', async (req, res) => {
+    const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
 })
