@@ -4,8 +4,11 @@ const mongoose = require('mongoose');
 // adding ejs mate
 const ejsMate = require('ejs-mate');
 //methodOverride middleware allows us to use HTTP verbs such as PUT or DELETE in HTML forms
-const methodOverride= require("method-override");
+const methodOverride = require("method-override");
 const Campground = require('./models/campground');
+// importing utilities function
+const catchAsync = require('./utils/catchAsync');
+const ExpressError = require('./utils/ExpressError');
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
@@ -41,47 +44,61 @@ app.get('/', (req, res) => {
 });
 
 // index.ejs
-app.get('/campgrounds', async(req, res) =>{
-    const campgrounds= await Campground.find({});
-    res.render('campgrounds/index', {campgrounds});
-})
+app.get('/campgrounds', catchAsync(async (req, res) => {
+    const campgrounds = await Campground.find({});
+    res.render('campgrounds/index', { campgrounds });
+}));
 
 // new.ejs
-app.get('/campgrounds/new', (req, res) =>{
+app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new');
-})
-app.post('/campgrounds', async (req, res) => {
+});
+app.post('/campgrounds', catchAsync(async (req, res, next) => {
+    if (!req.body.campground) throw new ExpressError('Invalid Campground Data', 400);
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`)
-})
+}));
 
 // show.ejs
-app.get('/campgrounds/:id', async(req, res) =>{
-    const campground= await Campground.findById(req.params.id)
-    res.render('campgrounds/show', {campground});
-})
+app.get('/campgrounds/:id', catchAsync(async (req, res) => {
+    const campground = await Campground.findById(req.params.id)
+    res.render('campgrounds/show', { campground });
+}));
 
 // edit.ejs
-app.get('/campgrounds/:id/edit', async (req, res) => {
+app.get('/campgrounds/:id/edit', catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id)
     res.render('campgrounds/edit', { campground });
-})
-app.put('/campgrounds/:id', async (req, res) => {
+}));
+app.put('/campgrounds/:id', catchAsync(async (req, res) => {
     // res.send("It worked!");
-    const {id} = req.params;
-    const campground= await Campground.findByIdAndUpdate(id, {...req.body.campground});
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     res.redirect(`/campgrounds/${campground._id}`);
-})
+}));
 
 // Deleting a campground
-app.delete('/campgrounds/:id', async (req, res) => {
+app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
-})
+}));
+
+// app.all() method, which is used to handle all HTTP 
+// methods (GET, POST, PUT, DELETE, etc.) for a given route.
+app.all('*', (req, res, next) => {
+    next(new ExpressError('Page Not Found', 404))
+});
+
+app.use((err, req, res, next) => {
+    const { statusCode = 500 } = err;
+    if (!err.message) err.message = 'Oh No, Something Went Wrong!'
+    res.status(statusCode).render('error', { err })
+});
 
 // configuring the server
 app.listen(3000, () => {
     console.log('Serving on port 3000')
-})
+});
+
