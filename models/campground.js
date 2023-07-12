@@ -9,7 +9,6 @@ const CampgroundSchema = new Schema({
     price: Number,
     description: String,
     location: String,
-    // setting relationship
     reviews: [
         {
             type: Schema.Types.ObjectId,
@@ -18,3 +17,14 @@ const CampgroundSchema = new Schema({
     ]
 });
 
+CampgroundSchema.post('findOneAndDelete', async function (doc) {
+    if (doc) {
+        await Review.deleteMany({
+            _id: {
+                $in: doc.reviews
+            }
+        })
+    }
+})
+
+module.exports = mongoose.model('Campground', CampgroundSchema);
