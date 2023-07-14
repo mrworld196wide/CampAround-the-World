@@ -3,6 +3,9 @@ const path = require('path');
 const mongoose = require('mongoose');
 // adding ejs mate
 const ejsMate = require('ejs-mate');
+//importing session
+const session = require('express-session');
+const flash = require('connect-flash');
 // importing utilities function
 const ExpressError = require('./utils/ExpressError');
 //methodOverride middleware allows us to use HTTP verbs such as PUT or DELETE in HTML forms
@@ -42,6 +45,30 @@ app.use(methodOverride('_method'));
 
 //used to serve static files in public dir
 app.use(express.static(path.join(__dirname, 'public')))
+
+// creating session 
+const sessionConfig = {
+    secret: 'thisshouldbeabettersecret!',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        // cookie will expiry in a week
+        maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+}
+app.use(session(sessionConfig))
+
+// using flash
+app.use(flash());
+app.use((req, res, next) => {
+    // for success
+    res.locals.success = req.flash('success');
+    // for errors
+    res.locals.error = req.flash('error');
+    next();
+})
 
 // using routes 
 app.use('/campgrounds', campgrounds)
