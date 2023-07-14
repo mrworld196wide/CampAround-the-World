@@ -14,7 +14,8 @@ const reviews = require('./routes/reviews');
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
     useCreateIndex: true,   //don't use this in newer versions as it has been deprecated from mongoose
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false
 });
 
 const db = mongoose.connection;
@@ -32,14 +33,15 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // used to parse ejs body in post method
-// The urlencoded method tells to extract data 
-// from the <form> element 
+// The urlencoded method tells to extract data from the <form> element 
 // and add them to the body property in the request object.
 app.use(express.urlencoded({ extended: true }));
 // The _method parameter specifies the query parameter or form field name that 
 // will be used to override the HTTP method. like DELELTE and PUT
 app.use(methodOverride('_method'));
 
+//used to serve static files in public dir
+app.use(express.static(path.join(__dirname, 'public')))
 
 // using routes 
 app.use('/campgrounds', campgrounds)
