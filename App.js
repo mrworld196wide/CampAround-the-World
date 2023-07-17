@@ -10,9 +10,16 @@ const flash = require('connect-flash');
 const ExpressError = require('./utils/ExpressError');
 //methodOverride middleware allows us to use HTTP verbs such as PUT or DELETE in HTML forms
 const methodOverride = require("method-override");
+// importing passport and modules
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./models/user');
+
 //importing routes
-const campgrounds = require('./routes/campgrounds');
-const reviews = require('./routes/reviews');
+const userRoutes = require('./routes/users');
+const campgroundRoutes = require('./routes/campgrounds');
+const reviewRoutes = require('./routes/reviews');
+
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
@@ -58,11 +65,24 @@ const sessionConfig = {
         maxAge: 1000 * 60 * 60 * 24 * 7
     }
 }
+//keep in mind to keep following before passport session
 app.use(session(sessionConfig))
 
 // using flash
 app.use(flash());
+
+//passport
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+//serializing user i.e. storing user into the session
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+//flash responses
 app.use((req, res, next) => {
+    console.log(req.session)
+    res.locals.currentUser = req.user;
     // for success
     res.locals.success = req.flash('success');
     // for errors
@@ -71,8 +91,9 @@ app.use((req, res, next) => {
 })
 
 // using routes 
-app.use('/campgrounds', campgrounds)
-app.use('/campgrounds/:id/reviews', reviews)
+app.use('/', userRoutes);
+app.use('/campgrounds', campgroundRoutes)
+app.use('/campgrounds/:id/reviews', reviewRoutes)
 
 // home.ejs
 app.get('/', (req, res) => {
