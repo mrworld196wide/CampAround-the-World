@@ -6,20 +6,20 @@ const User = require('../models/user');
 // importing controllers
 const users = require('../controllers/users');
 
-//register user view
-router.get('/register', users.renderRegister);
+router.route('/register')
+    //register user view
+    .get(users.renderRegister)
+    //registering the user 
+    .post(catchAsync(users.register));
 
-//registering the user 
-router.post('/register', catchAsync(users.register));
-
-//login user view
-router.get('/login', users.renderLogin)
-//checking from the database to authenticate the user
-router.post('/login', passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), users.login)
+router.route('/login')
+    //login user view
+    .get(users.renderLogin)
+    //checking from the database to authenticate the user
+    .post(passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), users.login)
 
 //logout route
 router.get('/logout', users.logout)
-
 
 // in latest verion of passportJS following is the logic for logout
 // router.get('/logout', (req, res, next) => {

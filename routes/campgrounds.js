@@ -7,23 +7,25 @@ const campgrounds = require('../controllers/campgrounds');
 const Campground = require('../models/campground');
 
 
-// index.ejs
-router.get('/', catchAsync(campgrounds.index));
+router.route('/')
+    // index.ejs
+    .get(catchAsync(campgrounds.index))
+    // for posting 
+    .post(isLoggedIn, validateCampground, catchAsync(campgrounds.createCampground))
 
 // new.ejs
 router.get('/new', isLoggedIn, campgrounds.renderNewForm)
 
-// for posting 
-router.post('/', isLoggedIn, validateCampground, catchAsync(campgrounds.createCampground))
 
-// show.ejs
-router.get('/:id', catchAsync(campgrounds.showCampground));
+router.route('/:id')
+    // show.ejs
+    .get(catchAsync(campgrounds.showCampground))
+    // edit.ejs
+    .put(isLoggedIn, isAuthor, validateCampground, catchAsync(campgrounds.updateCampground))
+    // Deleting a campground
+    .delete(isLoggedIn, isAuthor, catchAsync(campgrounds.deleteCampground));
 
-// edit.ejs
+//rendering edit.ejs
 router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(campgrounds.renderEditForm))
-router.put('/:id', isLoggedIn, isAuthor, validateCampground, catchAsync(campgrounds.updateCampground));
-
-// Deleting a campground
-router.delete('/:id', isLoggedIn, isAuthor, catchAsync(campgrounds.deleteCampground));
 
 module.exports = router;
