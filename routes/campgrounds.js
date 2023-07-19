@@ -25,7 +25,7 @@ router.route('/:id')
     // show.ejs
     .get(catchAsync(campgrounds.showCampground))
     // edit.ejs
-    .put(isLoggedIn, isAuthor, validateCampground, catchAsync(campgrounds.updateCampground))
+    .put(isLoggedIn, isAuthor, upload.array('image'), validateCampground, catchAsync(campgrounds.updateCampground))
     // Deleting a campground
     .delete(isLoggedIn, isAuthor, catchAsync(campgrounds.deleteCampground));
 
