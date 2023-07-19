@@ -1,3 +1,8 @@
+// dotenv file importing
+//this part says if we're running in development mode then we require the dotenv package.
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config();
+}
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
