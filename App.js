@@ -20,6 +20,11 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const User = require('./models/user');
 
+// imporiting helmet
+const helmet = require('helmet');
+// importing mongo sanatize
+const mongoSanitize = require('express-mongo-sanitize');
+
 //importing routes
 const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campgrounds');
@@ -58,8 +63,14 @@ app.use(methodOverride('_method'));
 //used to serve static files in public dir
 app.use(express.static(path.join(__dirname, 'public')))
 
+// mongo sanatize
+app.use(mongoSanitize({
+    replaceWith: '_'
+}))
+
 // creating session 
 const sessionConfig = {
+    name: 'session',
     secret: 'thisshouldbeabettersecret!',
     resave: false,
     saveUninitialized: true,
@@ -71,10 +82,57 @@ const sessionConfig = {
     }
 }
 //keep in mind to keep following before passport session
-app.use(session(sessionConfig))
+app.use(session(sessionConfig));
 
 // using flash
 app.use(flash());
+
+// helmet part
+app.use(helmet());
+const scriptSrcUrls = [
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://api.mapbox.com/",
+    "https://kit.fontawesome.com/",
+    "https://cdnjs.cloudflare.com/",
+    "https://cdn.jsdelivr.net",
+];
+const styleSrcUrls = [
+    "https://kit-free.fontawesome.com/",
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.mapbox.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://fonts.googleapis.com/",
+    "https://use.fontawesome.com/",
+];
+const connectSrcUrls = [
+    "https://api.mapbox.com/",
+    "https://a.tiles.mapbox.com/",
+    "https://b.tiles.mapbox.com/",
+    "https://events.mapbox.com/",
+];
+const fontSrcUrls = [];
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: [],
+            connectSrc: ["'self'", ...connectSrcUrls],
+            scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+            styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+            workerSrc: ["'self'", "blob:"],
+            objectSrc: [],
+            imgSrc: [
+                "'self'",
+                "blob:",
+                "data:",
+                "https://res.cloudinary.com/dbp6pwjvu/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT! 
+                "https://images.unsplash.com/",
+            ],
+            fontSrc: ["'self'", ...fontSrcUrls],
+        },
+    })
+);
+
 
 //passport
 app.use(passport.initialize());
@@ -86,7 +144,7 @@ passport.deserializeUser(User.deserializeUser());
 
 //flash responses
 app.use((req, res, next) => {
-    console.log(req.session)
+
     res.locals.currentUser = req.user;
     // for success
     res.locals.success = req.flash('success');
