@@ -12,6 +12,25 @@
 
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        .nav-link {
+            padding: 0.25rem 0;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.5);
+            margin-left: 1rem;
+            border-bottom: 0.25rem solid transparent;
+        }
+
+        .nav-link:hover {
+            color: rgba(3, 196, 255, 0.5);
+            border-bottom-color: #F0FFFF;
+        }
+
+        .nav-link.active {
+            color: white;
+            border-bottom-color:#F0FFFF;
+        }
+    </style>
 </head>
 
 <body class="d-flex flex-column vh-100">
