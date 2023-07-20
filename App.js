@@ -30,8 +30,12 @@ const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 
+// importing mongo atlas
+const MongoDBStore = require("connect-mongo")(session);
+// mongo atlas
+const dbUrl = process.env.DB_URL;
 
-mongoose.connect('mongodb://localhost:27017/yelp-camp', {
+mongoose.connect(dbUrl, {
     useNewUrlParser: true,
     useCreateIndex: true,   //don't use this in newer versions as it has been deprecated from mongoose
     useUnifiedTopology: true,
@@ -68,10 +72,23 @@ app.use(mongoSanitize({
     replaceWith: '_'
 }))
 
+//mongo atlas session
+const secret = process.env.SECRET;
+// storing in mongo atlas
+const store = new MongoDBStore({
+    url: dbUrl,
+    secret,
+    touchAfter: 24 * 60 * 60
+});
+store.on("error", function (e) {
+    console.log("SESSION STORE ERROR", e)
+})
+
 // creating session 
 const sessionConfig = {
+    store,
     name: 'session',
-    secret: 'thisshouldbeabettersecret!',
+    secret ,
     resave: false,
     saveUninitialized: true,
     cookie: {
