@@ -33,7 +33,7 @@ const reviewRoutes = require('./routes/reviews');
 // importing mongo atlas
 const MongoDBStore = require("connect-mongo")(session);
 // mongo atlas
-const dbUrl = process.env.DB_URL;
+const dbUrl = process.env.DB_URL  || 'mongodb://localhost:27017/yelp-camp';
 
 mongoose.connect(dbUrl, {
     useNewUrlParser: true,
@@ -73,7 +73,7 @@ app.use(mongoSanitize({
 }))
 
 //mongo atlas session
-const secret = process.env.SECRET;
+const secret = process.env.SECRET || 'thisshouldbeabettersecret!';
 // storing in mongo atlas
 const store = new MongoDBStore({
     url: dbUrl,
