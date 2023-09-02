@@ -57,10 +57,10 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // used to parse ejs body in post method
-// The urlencoded method tells to extract data from the <form> element 
+// The urlencoded method tells to extract data from the <form> element
 // and add them to the body property in the request object.
 app.use(express.urlencoded({ extended: true }));
-// The _method parameter specifies the query parameter or form field name that 
+// The _method parameter specifies the query parameter or form field name that
 // will be used to override the HTTP method. like DELELTE and PUT
 app.use(methodOverride('_method'));
 
@@ -84,7 +84,7 @@ store.on("error", function (e) {
     console.log("SESSION STORE ERROR", e)
 })
 
-// creating session 
+// creating session
 const sessionConfig = {
     store,
     name: 'session',
@@ -142,7 +142,7 @@ app.use(
                 "'self'",
                 "blob:",
                 "data:",
-                "https://res.cloudinary.com/dbp6pwjvu/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT! 
+                "https://res.cloudinary.com/dbp6pwjvu/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT!
                 "https://images.unsplash.com/",
             ],
             fontSrc: ["'self'", ...fontSrcUrls],
@@ -170,7 +170,7 @@ app.use((req, res, next) => {
     next();
 })
 
-// using routes 
+// using routes
 app.use('/', userRoutes);
 app.use('/campgrounds', campgroundRoutes)
 app.use('/campgrounds/:id/reviews', reviewRoutes)
@@ -181,7 +181,7 @@ app.get('/', (req, res) => {
 });
 
 
-// app.all() method, which is used to handle all HTTP 
+// app.all() method, which is used to handle all HTTP
 // methods (GET, POST, PUT, DELETE, etc.) for a given route.
 app.all('*', (req, res, next) => {
     next(new ExpressError('Page Not Found', 404))
@@ -195,8 +195,9 @@ app.use((err, req, res, next) => {
 })
 
 // configuring the server
-app.listen(3000, () => {
-    console.log('Serving on port 3000')
+const port= process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Serving on port ${port}`);
 })
 
 
