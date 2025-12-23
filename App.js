@@ -35,12 +35,9 @@ const MongoDBStore = require("connect-mongo")(session);
 // mongo atlas
 const dbUrl = process.env.DB_URL  || 'mongodb://localhost:27017/yelp-camp';
 
-mongoose.connect(dbUrl, {
-    useNewUrlParser: true,
-    useCreateIndex: true,   //don't use this in newer versions as it has been deprecated from mongoose
-    useUnifiedTopology: true,
-    useFindAndModify: false
-});
+mongoose.set("strictQuery", true);
+
+mongoose.connect(dbUrl);
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
